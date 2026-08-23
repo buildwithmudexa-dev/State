@@ -23,6 +23,61 @@ document.addEventListener('DOMContentLoaded', () => {
     counters.forEach(el => observer.observe(el));
   }
 
+  // View Properties search panel.
+  const servicesSection = document.getElementById('services');
+  const propertyGrid = servicesSection?.querySelector('.property-grid');
+  if (propertyGrid && !document.getElementById('property-search-panel')) {
+    const panel = document.createElement('div');
+    panel.className = 'property-search-panel';
+    panel.id = 'property-search-panel';
+    panel.innerHTML = `
+      <div class="property-search-heading">
+        <span class="eyebrow">Find your property</span>
+        <h2>Search <em>properties.</em></h2>
+        <p>Choose your preferences and explore the property information available with SAMA United.</p>
+      </div>
+      <form class="property-search-form" id="property-search-form">
+        <div class="property-search-field">
+          <label for="type-filter">Property Type</label>
+          <select id="type-filter" name="type">
+            <option value="all">All Types</option>
+            <option value="residential">Residential</option>
+            <option value="consulting">Consultation</option>
+          </select>
+        </div>
+        <div class="property-search-field">
+          <label for="location-filter">Location</label>
+          <select id="location-filter" name="location">
+            <option value="all">All Locations</option>
+            <option value="al-thuqbah">Al-Thuqbah</option>
+            <option value="al-khobar">Al Khobar</option>
+          </select>
+        </div>
+        <div class="property-search-field">
+          <label for="status-filter">For</label>
+          <select id="status-filter" name="status">
+            <option value="all">For Sale &amp; Rent</option>
+            <option value="sale">For Sale</option>
+            <option value="rent">For Rent</option>
+          </select>
+        </div>
+        <div class="property-search-field">
+          <label for="price-filter">Price Range</label>
+          <select id="price-filter" name="price">
+            <option value="all">Any Price</option>
+            <option value="under1m">Under SAR 1M</option>
+            <option value="1to3m">SAR 1M – 3M</option>
+            <option value="3to5m">SAR 3M – 5M</option>
+            <option value="over5m">Over SAR 5M</option>
+          </select>
+        </div>
+        <button class="btn property-search-submit" type="submit">Search <i data-lucide="search"></i></button>
+      </form>
+    `;
+    servicesSection.querySelector('.section-header')?.insertAdjacentElement('afterend', panel);
+    if (window.lucide) window.lucide.createIcons();
+  }
+
   // Property filters, when present on a page.
   const cards = [...document.querySelectorAll('.property-card')];
   const search = document.getElementById('property-search');
@@ -31,9 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const location = document.getElementById('location-filter');
   const price = document.getElementById('price-filter');
   const empty = document.getElementById('empty-state');
+
+  cards.forEach((card, index) => {
+    card.dataset.type = index === 2 ? 'consulting' : 'residential';
+    card.dataset.location = 'al-thuqbah';
+    card.dataset.status = 'all';
+    card.dataset.price = '';
+  });
+
   const priceMatch = (value, filter) => {
+    if (!filter || filter === 'all' || !value) return true;
     const n = Number(value);
-    if (!filter || filter === 'all') return true;
+    if (!Number.isFinite(n)) return true;
     if (filter === 'under1m') return n < 1000000;
     if (filter === '1to3m') return n >= 1000000 && n <= 3000000;
     if (filter === '3to5m') return n > 3000000 && n <= 5000000;
@@ -47,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ok = (!q || card.textContent.toLowerCase().includes(q)) &&
         (!status || status.value === 'all' || card.dataset.status === status.value) &&
         (!type || type.value === 'all' || card.dataset.type === type.value) &&
-        (!location || location.value === 'all' || card.dataset.location === location.value) &&
+        (!location || location.value === 'all' || card.dataset.location === location.value || (location.value === 'al-khobar' && card.dataset.location === 'al-thuqbah')) &&
         priceMatch(card.dataset.price, price?.value);
       card.hidden = !ok;
       if (ok) visible++;
@@ -57,6 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
   [search, status, type, location, price].forEach(el => {
     el?.addEventListener('input', filterCards);
     el?.addEventListener('change', filterCards);
+  });
+
+  document.getElementById('property-search-form')?.addEventListener('submit', event => {
+    event.preventDefault();
+    filterCards();
+    propertyGrid?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   document.querySelectorAll('.property-favorite').forEach(button => {
