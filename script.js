@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+  if (!document.querySelector('link[href="property-search.css"]')) {
+    const propertySearchStyles = document.createElement('link');
+    propertySearchStyles.rel = 'stylesheet';
+    propertySearchStyles.href = 'property-search.css';
+    document.head.appendChild(propertySearchStyles);
+  }
   if (window.lucide) window.lucide.createIcons();
 
   // Core page interactions. Language/theme/menu controls are handled by navbar-enhancements.js.
