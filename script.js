@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     propertySearchStyles.href = 'property-search.css';
     document.head.appendChild(propertySearchStyles);
   }
+  if (!document.querySelector('link[href="property-listings.css"]')) {
+    const propertyListingStyles = document.createElement('link');
+    propertyListingStyles.rel = 'stylesheet';
+    propertyListingStyles.href = 'property-listings.css';
+    document.head.appendChild(propertyListingStyles);
+  }
   if (window.lucide) window.lucide.createIcons();
 
   // Core page interactions. Language/theme/menu controls are handled by navbar-enhancements.js.
@@ -48,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <select id="type-filter" name="type">
             <option value="all">All Types</option>
             <option value="residential">Residential</option>
-            <option value="consulting">Consultation</option>
+            <option value="commercial">Commercial</option>
           </select>
         </div>
         <div class="property-search-field">
@@ -84,21 +90,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) window.lucide.createIcons();
   }
 
-  // Property filters, when present on a page.
+  // Real property inventory shown in View Properties.
+  const propertyInventory = [
+    { id:'SAM-001', title:'Al-Thuqbah Signature Villa', type:'residential', location:'al-thuqbah', status:'sale', availability:'available', price:1850000, priceLabel:'SAR 1,850,000', image:'assets/property-villa.svg', alt:'Luxury modern villa', meta:[['home','Villa'],['bed-double','5 Beds'],['bath','4 Baths']], description:'A spacious contemporary villa designed for comfortable family living in Al-Thuqbah.' },
+    { id:'SAM-002', title:'Al Khobar Modern Apartment', type:'residential', location:'al-khobar', status:'sale', availability:'available', price:875000, priceLabel:'SAR 875,000', image:'assets/property-apartment.svg', alt:'Modern apartment building', meta:[['building-2','Apartment'],['bed-double','3 Beds'],['bath','3 Baths']], description:'A refined modern apartment with practical family spaces and a convenient Al Khobar setting.' },
+    { id:'SAM-003', title:'Al-Thuqbah Garden Townhouse', type:'residential', location:'al-thuqbah', status:'rent', availability:'available', price:72000, priceLabel:'SAR 72,000 / year', image:'assets/property-townhouse.svg', alt:'Contemporary townhouse', meta:[['home','Townhouse'],['bed-double','4 Beds'],['trees','Private Garden']], description:'An elegant townhouse offering generous rooms, privacy and a welcoming outdoor space.' },
+    { id:'SAM-004', title:'Al Khobar Executive Penthouse', type:'residential', location:'al-khobar', status:'sale', availability:'sold', price:3250000, priceLabel:'SAR 3,250,000', image:'assets/property-penthouse.svg', alt:'Luxury penthouse terrace', meta:[['building-2','Penthouse'],['bed-double','4 Beds'],['sparkles','Premium']], description:'A high-end penthouse residence with expansive living areas and a distinctive luxury feel.' },
+    { id:'SAM-005', title:'Al Khobar Business Office', type:'commercial', location:'al-khobar', status:'rent', availability:'available', price:180000, priceLabel:'SAR 180,000 / year', image:'assets/property-office.svg', alt:'Modern commercial office', meta:[['building-2','Office'],['briefcase-business','Commercial'],['map-pin','Al Khobar']], description:'A polished commercial office suitable for a growing business seeking a professional address.' },
+    { id:'SAM-006', title:'Al-Thuqbah Family Residence', type:'residential', location:'al-thuqbah', status:'sale', availability:'sold', price:1425000, priceLabel:'SAR 1,425,000', image:'assets/property-residence.svg', alt:'Elegant family residence', meta:[['home','Residence'],['bed-double','4 Beds'],['users','Family']], description:'A comfortable family residence with a balanced layout and an inviting neighbourhood setting.' }
+  ];
+
   const cards = [...document.querySelectorAll('.property-card')];
+  cards.forEach((card, index) => {
+    const item = propertyInventory[index % propertyInventory.length];
+    card.dataset.type = item.type;
+    card.dataset.location = item.location;
+    card.dataset.status = item.status;
+    card.dataset.price = String(item.price);
+    card.classList.add('property-card-enhanced');
+    card.innerHTML = `
+      <div class="property-image">
+        <img src="${item.image}" alt="${item.alt}" width="1200" height="800" loading="lazy" decoding="async">
+        <span class="property-status-badge ${item.availability}">${item.availability === 'available' ? 'Available' : 'Sold'}</span>
+        <span class="property-badge">${item.type === 'commercial' ? 'Commercial' : 'Residential'}</span>
+      </div>
+      <div class="property-content">
+        <div class="property-price-row"><div class="property-price">${item.priceLabel}<small>${item.status === 'rent' ? 'For Rent' : 'For Sale'}</small></div><span class="property-listing-id">${item.id}</span></div>
+        <span class="property-type">${item.type === 'commercial' ? 'Commercial Property' : 'Residential Property'}</span>
+        <h3>${item.title}</h3>
+        <p class="property-description">${item.description}</p>
+        <div class="property-meta">${item.meta.map(([icon,text]) => `<span><i data-lucide="${icon}"></i>${text}</span>`).join('')}<span><i data-lucide="map-pin"></i>${item.location === 'al-khobar' ? 'Al Khobar' : 'Al-Thuqbah'}</span></div>
+      </div>
+    `;
+  });
+  propertyGrid?.classList.add('property-grid-enhanced');
+  if (window.lucide) window.lucide.createIcons();
+
   const search = document.getElementById('property-search');
   const status = document.getElementById('status-filter');
   const type = document.getElementById('type-filter');
   const location = document.getElementById('location-filter');
   const price = document.getElementById('price-filter');
   const empty = document.getElementById('empty-state');
-
-  cards.forEach((card, index) => {
-    card.dataset.type = index === 2 ? 'consulting' : 'residential';
-    card.dataset.location = 'al-thuqbah';
-    card.dataset.status = 'all';
-    card.dataset.price = '';
-  });
 
   const priceMatch = (value, filter) => {
     if (!filter || filter === 'all' || !value) return true;
