@@ -87,4 +87,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Premium CTA upgrade for the State homepage.
+  const heroActions = document.querySelector('.hero .hero-actions');
+  if (heroActions) {
+    heroActions.innerHTML = `
+      <a class="btn btn-light" href="#services">View Properties <i data-lucide="arrow-up-right"></i></a>
+      <a class="btn btn-outline-light" href="#advisor">Talk to an Advisor <i data-lucide="user-round"></i></a>
+    `;
+  }
+
+  const locationSection = document.getElementById('location');
+  if (locationSection && !document.getElementById('advisor')) {
+    const ctaSection = document.createElement('section');
+    ctaSection.className = 'section advisor-cta-section';
+    ctaSection.id = 'advisor';
+    ctaSection.innerHTML = `
+      <div class="container">
+        <div class="advisor-cta-header">
+          <span class="eyebrow">Explore &amp; Connect</span>
+          <h2>Find your next <em>property.</em></h2>
+          <p>Explore our property options or speak directly with an advisor for guidance tailored to your needs.</p>
+        </div>
+        <div class="advisor-cta-grid">
+          <article class="advisor-cta-card">
+            <div class="advisor-cta-image"><img src="assets/view-properties-generated.svg" alt="Contemporary luxury property" loading="lazy" decoding="async"></div>
+            <div class="advisor-cta-content"><span class="property-type">01 · Properties</span><h3>View Properties</h3><p>Browse the available property information and discover spaces that fit your plans.</p><a class="btn btn-dark" href="#services">View Properties <i data-lucide="arrow-up-right"></i></a></div>
+          </article>
+          <article class="advisor-cta-card">
+            <div class="advisor-cta-image"><img src="assets/talk-to-advisor-generated.svg" alt="Professional real estate advisor consultation" loading="lazy" decoding="async"></div>
+            <div class="advisor-cta-content"><span class="property-type">02 · Consultation</span><h3>Talk to an Advisor</h3><p>Get clear, personal real estate guidance from the SAMA United team.</p><a class="btn btn-dark" href="#contact">Talk to an Advisor <i data-lucide="user-round"></i></a></div>
+          </article>
+        </div>
+      </div>
+    `;
+    locationSection.parentNode.insertBefore(ctaSection, locationSection);
+  }
+
+  if (window.lucide) window.lucide.createIcons();
 });
